@@ -94,14 +94,14 @@ if not storyAreaCheck then
                         -- Mốc cơ bản X ban đầu
                         local baseX = screenPos.X + 50 + 150
                         
-                        -- Cố định mốc tọa độ cơ bản của Y (đã cộng thêm 100px và 30px cho 10 cái đầu)
+                        -- Cố định Y (đã cộng thêm 100px và 30px cho 10 cái đầu như cũ)
                         local baseOffset = 100
                         local currentY = screenPos.Y + baseOffset
                         if clickCount < 10 then
                             currentY = currentY + 30
                         end
                         
-                        -- Chu kỳ sang phải / sang trái theo yêu cầu: 3 lần click cho mỗi bước 5 pixel (tổng 5 bước = 15 click sang phải, rồi 15 click sang trái)
+                        -- Thay vì lên xuống sau mỗi lần click, giờ dùng chu kỳ sang phải rồi sang trái (mỗi bước 5 pixel, cứ 3 lần click đổi 1 lần)
                         local halfCycle = 15 
                         local fullCycle = 30
                         local posInCycle = clickCount % fullCycle

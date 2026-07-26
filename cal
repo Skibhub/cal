@@ -72,7 +72,7 @@ if not storyAreaCheck then
         end
     end)
 
-    -- Vòng lặp click chuột
+    -- Vòng lặp click chuột: Chạy qua lại liên tục theo chiều ngang không reset về gốc
     task.spawn(function()
         task.wait(1)
         
@@ -91,31 +91,23 @@ if not storyAreaCheck then
                     local screenPos, onScreen = Camera:WorldToScreenPoint(targetWorldPos)
                     
                     if onScreen then
-                        -- Cố định mốc tọa độ cơ bản của Y (đã cộng thêm 100px và hạ xuống 30px cho 10 cái đầu)
+                        -- Cố định mốc tọa độ cơ bản của Y (cộng 100 và luôn cộng thêm 40 cho mọi lần click)
                         local baseOffsetY = 100
-                        local currentY = screenPos.Y + baseOffsetY
+                        local currentY = screenPos.Y + baseOffsetY + 40
                         
-                        if clickCount < 10 then
-                            currentY = currentY + 30
-                        end
-                        
-                        -- Sang phải tổng cộng 320 ở X làm gốc từ 10 cú click đầu tiên
+                        -- Sang phải tổng cộng 320 ở X làm gốc
                         local baseX = screenPos.X + 50 + 150
                         
-                        -- Lùi trái 5 pixel mỗi 5 lần click, đủ 3 lần lùi thì lại sang phải mỗi 5 lần click đủ 5 lần rồi lặp lại
+                        -- Tính toán dịch chuyển qua lại liên tục dạng sóng mà không reset về 0
+                        local stepSize = 20
+                        local maxSteps = 3
+                        local cyclePosition = clickCount % (maxSteps * 2)
                         local horizontalOffset = 0
-                        if clickCount >= 10 then
-                            local postClicks = clickCount - 10
-                            local cycle = postClicks % 40
-                            
-                            if cycle < 15 then
-                                local step = math.floor(cycle / 5) + 1
-                                horizontalOffset = -(step * 5)
-                            elseif cycle < 40 then
-                                local rightCycle = cycle - 15
-                                local step = math.floor(rightCycle / 5) + 1
-                                horizontalOffset = -15 + (step * 5)
-                            end
+                        
+                        if cyclePosition < maxSteps then
+                            horizontalOffset = cyclePosition * stepSize
+                        else
+                            horizontalOffset = (maxSteps * 2 - cyclePosition) * stepSize
                         end
                         
                         local currentX = baseX + horizontalOffset

@@ -124,7 +124,7 @@ task.spawn(function()
                 end
             end)
 
-            -- Vòng lặp click chuột: Sang trái trước, 5 click đổi hướng 1 lần, lặp qua lại 5 lần đổi hướng
+            -- Vòng lặp click chuột
             task.spawn(function()
                 task.wait(1)
                 
@@ -147,17 +147,11 @@ task.spawn(function()
                             
                             if onScreen then
                                 local baseOffsetY = 100
-                                local currentY = screenPos.Y + baseOffsetY + 40
-                                
-                                -- 10 cú click đầu tiên cho lên thêm 65 pixel (15 + 50)
-                                if clickCount < 10 then
-                                    currentY = currentY - 65
-                                end
+                                local currentY = screenPos.Y + baseOffsetY + 40 + 15 + 15
                                 
                                 -- Mốc gốc X
                                 local baseX = screenPos.X + 50 + 150
                                 
-                                -- 5 click mới đổi vị trí 1 lần, lặp qua lại 5 lần
                                 local stepSize = 25
                                 local maxSteps = 5
                                 local phaseIndex = math.floor(clickCount / 5)
@@ -165,7 +159,6 @@ task.spawn(function()
                                 
                                 local horizontalOffset = 0
                                 
-                                -- Sang trái trước (trừ dần), sau đó sang phải (cộng dần) với maxSteps = 5
                                 if cyclePosition < maxSteps then
                                     horizontalOffset = -(cyclePosition * stepSize)
                                 else

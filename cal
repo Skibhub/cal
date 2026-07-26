@@ -64,7 +64,7 @@ if not storyAreaCheck then
         end
     end)
 
-    -- Vòng lặp click chuột
+    -- Vòng lặp click chuột: Lấy mốc tọa độ của 10 cái đầu (đã cộng thêm 100px) làm gốc rồi áp dụng chu kỳ lên xuống 20px ngay từ đầu
     task.spawn(function()
         task.wait(1)
         
@@ -83,11 +83,8 @@ if not storyAreaCheck then
                     local screenPos, onScreen = Camera:WorldToScreenPoint(targetWorldPos)
                     
                     if onScreen then
-                        -- Tổng cộng X ban đầu trừ thêm 20 pixel cho 10 cái click đầu
-                        local currentX = screenPos.X + 20 + 50 + 100 + 150
-                        if clickCount < 10 then
-                            currentX = currentX - 20
-                        end
+                        -- Sang phải tổng cộng cộng 320 ở X
+                        local currentX = screenPos.X + 50 + 100 + 150
                         
                         -- Cố định mốc tọa độ cơ bản của 10 cái click đầu tiên (đã cộng thêm 100px)
                         local baseOffset = 15 + 100

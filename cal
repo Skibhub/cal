@@ -72,7 +72,7 @@ if not storyAreaCheck then
         end
     end)
 
-    -- Vòng lặp click chuột: Lấy mốc tọa độ của 10 cái đầu (đã cộng thêm 100px) làm gốc rồi áp dụng chu kỳ lên xuống 20px ngay từ đầu
+    -- Vòng lặp click chuột
     task.spawn(function()
         task.wait(1)
         
@@ -91,33 +91,32 @@ if not storyAreaCheck then
                     local screenPos, onScreen = Camera:WorldToScreenPoint(targetWorldPos)
                     
                     if onScreen then
-                        -- Sang phải tổng cộng cộng 320 ở X
-                        local currentX = screenPos.X + 50 + 150
+                        -- Mốc cơ bản X ban đầu
+                        local baseX = screenPos.X + 50 + 150
                         
-                        -- Cố định mốc tọa độ cơ bản của 10 cái click đầu tiên (đã cộng thêm 100px)
+                        -- Cố định mốc tọa độ cơ bản của Y (đã cộng thêm 100px và 30px cho 10 cái đầu)
                         local baseOffset = 100
-                        
-                        -- Tính toán chu kỳ tụt xuống 20px rồi lên lại 20px dựa trực tiếp trên mốc đó ngay từ click đầu tiên
-                        local halfCycle = 15 
-                        local fullCycle = 30
-                        local posInCycle = clickCount % fullCycle
-                        local dropOffset = 0
-                        
-                        if posInCycle < halfCycle then
-                            local stepIndex = math.floor(posInCycle / 5)
-                            dropOffset = stepIndex * 20
-                        else
-                            local upPos = posInCycle - halfCycle
-                            local stepIndex = math.floor(upPos / 5)
-                            dropOffset = 60 - (stepIndex * 20)
-                        end
-                        
-                        local currentY = screenPos.Y + baseOffset + dropOffset
-                        
-                        -- Thấp xuống thêm 30 pixel riêng cho 10 cái click đầu tiên
+                        local currentY = screenPos.Y + baseOffset
                         if clickCount < 10 then
                             currentY = currentY + 30
                         end
+                        
+                        -- Chu kỳ sang phải / sang trái theo yêu cầu: 3 lần click cho mỗi bước 5 pixel (tổng 5 bước = 15 click sang phải, rồi 15 click sang trái)
+                        local halfCycle = 15 
+                        local fullCycle = 30
+                        local posInCycle = clickCount % fullCycle
+                        local moveOffset = 0
+                        
+                        if posInCycle < halfCycle then
+                            local stepIndex = math.floor(posInCycle / 3)
+                            moveOffset = stepIndex * 5
+                        else
+                            local backPos = posInCycle - halfCycle
+                            local stepIndex = math.floor(backPos / 3)
+                            moveOffset = 25 - (stepIndex * 5)
+                        end
+                        
+                        local currentX = baseX + moveOffset
                         
                         VirtualInputManager:SendMouseButtonEvent(currentX, currentY, 0, true, game, 1)
                         task.wait(0.05)

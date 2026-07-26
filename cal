@@ -149,15 +149,15 @@ task.spawn(function()
                                 local baseOffsetY = 100
                                 local currentY = screenPos.Y + baseOffsetY + 40
                                 
-                                -- 10 cú click đầu tiên cho lên thêm 15 pixel (Y giảm đi 15 vì hệ tọa độ màn hình tính từ trên xuống)
+                                -- 10 cú click đầu tiên cho lên thêm 65 pixel (15 + 50)
                                 if clickCount < 10 then
-                                    currentY = currentY - 15
+                                    currentY = currentY - 65
                                 end
                                 
                                 -- Mốc gốc X
                                 local baseX = screenPos.X + 50 + 150
                                 
-                                -- 5 click mới đổi vị trí 1 lần (chia clickCount cho 5)
+                                -- 5 click mới đổi vị trí 1 lần, lặp qua lại 5 lần
                                 local stepSize = 25
                                 local maxSteps = 5
                                 local phaseIndex = math.floor(clickCount / 5)

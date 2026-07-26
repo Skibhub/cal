@@ -47,6 +47,14 @@ task.spawn(function()
     end
 end)
 
+-- Quay màn hình sang phải đúng 1 lần tầm 25% màn hình (khoảng 90 độ)
+task.spawn(function()
+    task.wait(1)
+    pcall(function()
+        Camera.CFrame = Camera.CFrame * CFrame.Angles(0, math.rad(-90), 0)
+    end)
+end)
+
 -- Phần còn lại chạy khi không tìm thấy (hoặc để dự phòng logic click chuột tự động)
 local storyAreaCheck = workspace:FindFirstChild("InteractZones") and workspace.InteractZones:FindFirstChild("Story")
 if not storyAreaCheck then

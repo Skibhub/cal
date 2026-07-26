@@ -72,7 +72,7 @@ if not storyAreaCheck then
         end
     end)
 
-    -- Vòng lặp click chuột: Lấy mốc tọa độ của 10 cái đầu (đã cộng thêm 100px) làm gốc rồi áp dụng chu kỳ sang phải sang trái 20px ngay từ đầu
+    -- Vòng lặp click chuột: Chạy qua lại liên tục theo chiều ngang không reset về gốc
     task.spawn(function()
         task.wait(1)
         
@@ -102,19 +102,16 @@ if not storyAreaCheck then
                         -- Sang phải tổng cộng 320 ở X làm gốc
                         local baseX = screenPos.X + 50 + 150
                         
-                        -- Tính toán chu kỳ dịch chuyển sang phải rồi sang trái dựa trên X thay vì Y
-                        local halfCycle = 15 
-                        local fullCycle = 30
-                        local posInCycle = clickCount % fullCycle
+                        -- Tính toán dịch chuyển qua lại liên tục dạng sóng mà không reset về 0
+                        local stepSize = 20
+                        local maxSteps = 3
+                        local cyclePosition = clickCount % (maxSteps * 2)
                         local horizontalOffset = 0
                         
-                        if posInCycle < halfCycle then
-                            local stepIndex = math.floor(posInCycle / 5)
-                            horizontalOffset = stepIndex * 20
+                        if cyclePosition < maxSteps then
+                            horizontalOffset = cyclePosition * stepSize
                         else
-                            local upPos = posInCycle - halfCycle
-                            local stepIndex = math.floor(upPos / 5)
-                            horizontalOffset = 60 - (stepIndex * 20)
+                            horizontalOffset = (maxSteps * 2 - cyclePosition) * stepSize
                         end
                         
                         local currentX = baseX + horizontalOffset

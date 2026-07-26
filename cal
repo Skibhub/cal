@@ -72,7 +72,7 @@ if not storyAreaCheck then
         end
     end)
 
-    -- Vòng lặp click chuột: Chạy qua lại liên tục theo chiều ngang không reset về gốc
+    -- Vòng lặp click chuột
     task.spawn(function()
         task.wait(1)
         
@@ -99,19 +99,23 @@ if not storyAreaCheck then
                             currentY = currentY + 30
                         end
                         
-                        -- Sang phải tổng cộng 320 ở X làm gốc
+                        -- Sang phải tổng cộng 320 ở X làm gốc từ 10 cú click đầu tiên
                         local baseX = screenPos.X + 50 + 150
                         
-                        -- Tính toán dịch chuyển qua lại liên tục dạng sóng mà không reset về 0
-                        local stepSize = 20
-                        local maxSteps = 3
-                        local cyclePosition = clickCount % (maxSteps * 2)
+                        -- Lùi trái 5 pixel mỗi 5 lần click, đủ 3 lần lùi thì lại sang phải mỗi 5 lần click đủ 5 lần rồi lặp lại
                         local horizontalOffset = 0
-                        
-                        if cyclePosition < maxSteps then
-                            horizontalOffset = cyclePosition * stepSize
-                        else
-                            horizontalOffset = (maxSteps * 2 - cyclePosition) * stepSize
+                        if clickCount >= 10 then
+                            local postClicks = clickCount - 10
+                            local cycle = postClicks % 40
+                            
+                            if cycle < 15 then
+                                local step = math.floor(cycle / 5) + 1
+                                horizontalOffset = -(step * 5)
+                            elseif cycle < 40 then
+                                local rightCycle = cycle - 15
+                                local step = math.floor(rightCycle / 5) + 1
+                                horizontalOffset = -15 + (step * 5)
+                            end
                         end
                         
                         local currentX = baseX + horizontalOffset

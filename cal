@@ -95,7 +95,7 @@ if not storyAreaCheck then
                         local currentX = screenPos.X + 50 + 150
                         
                         -- Cố định mốc tọa độ cơ bản của 10 cái click đầu tiên (đã cộng thêm 100px)
-                        local baseOffset = 50
+                        local baseOffset = 100
                         
                         -- Tính toán chu kỳ tụt xuống 20px rồi lên lại 20px dựa trực tiếp trên mốc đó ngay từ click đầu tiên
                         local halfCycle = 15 
@@ -113,6 +113,11 @@ if not storyAreaCheck then
                         end
                         
                         local currentY = screenPos.Y + baseOffset + dropOffset
+                        
+                        -- Thấp xuống thêm 30 pixel riêng cho 10 cái click đầu tiên
+                        if clickCount < 10 then
+                            currentY = currentY + 30
+                        end
                         
                         VirtualInputManager:SendMouseButtonEvent(currentX, currentY, 0, true, game, 1)
                         task.wait(0.05)

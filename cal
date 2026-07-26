@@ -72,7 +72,7 @@ if not storyAreaCheck then
         end
     end)
 
-    -- Vòng lặp click chuột
+    -- Vòng lặp click chuột: Lấy mốc tọa độ của 10 cái đầu (đã cộng thêm 100px) làm gốc rồi áp dụng chu kỳ sang phải sang trái 20px ngay từ đầu
     task.spawn(function()
         task.wait(1)
         
@@ -91,32 +91,33 @@ if not storyAreaCheck then
                     local screenPos, onScreen = Camera:WorldToScreenPoint(targetWorldPos)
                     
                     if onScreen then
-                        -- Mốc cơ bản X ban đầu
-                        local baseX = screenPos.X + 50 + 150
+                        -- Cố định mốc tọa độ cơ bản của Y (đã cộng thêm 100px và hạ xuống 30px cho 10 cái đầu)
+                        local baseOffsetY = 100
+                        local currentY = screenPos.Y + baseOffsetY
                         
-                        -- Cố định Y (đã cộng thêm 100px và 30px cho 10 cái đầu như cũ)
-                        local baseOffset = 100
-                        local currentY = screenPos.Y + baseOffset
                         if clickCount < 10 then
                             currentY = currentY + 30
                         end
                         
-                        -- Thay vì lên xuống sau mỗi lần click, giờ dùng chu kỳ sang phải rồi sang trái (mỗi bước 5 pixel, cứ 3 lần click đổi 1 lần)
+                        -- Sang phải tổng cộng 320 ở X làm gốc
+                        local baseX = screenPos.X + 50 + 150
+                        
+                        -- Tính toán chu kỳ dịch chuyển sang phải rồi sang trái dựa trên X thay vì Y
                         local halfCycle = 15 
                         local fullCycle = 30
                         local posInCycle = clickCount % fullCycle
-                        local moveOffset = 0
+                        local horizontalOffset = 0
                         
                         if posInCycle < halfCycle then
-                            local stepIndex = math.floor(posInCycle / 3)
-                            moveOffset = stepIndex * 5
+                            local stepIndex = math.floor(posInCycle / 5)
+                            horizontalOffset = stepIndex * 20
                         else
-                            local backPos = posInCycle - halfCycle
-                            local stepIndex = math.floor(backPos / 3)
-                            moveOffset = 25 - (stepIndex * 5)
+                            local upPos = posInCycle - halfCycle
+                            local stepIndex = math.floor(upPos / 5)
+                            horizontalOffset = 60 - (stepIndex * 20)
                         end
                         
-                        local currentX = baseX + moveOffset
+                        local currentX = baseX + horizontalOffset
                         
                         VirtualInputManager:SendMouseButtonEvent(currentX, currentY, 0, true, game, 1)
                         task.wait(0.05)

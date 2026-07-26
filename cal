@@ -72,7 +72,7 @@ if not storyAreaCheck then
         end
     end)
 
-    -- Vòng lặp click chuột: Chạy qua lại liên tục theo chiều ngang không reset về gốc
+    -- Vòng lặp click chuột: Sang trái trước, 5 click đổi hướng 1 lần, lặp qua lại 3 lần đổi hướng
     task.spawn(function()
         task.wait(1)
         
@@ -91,23 +91,26 @@ if not storyAreaCheck then
                     local screenPos, onScreen = Camera:WorldToScreenPoint(targetWorldPos)
                     
                     if onScreen then
-                        -- Cố định mốc tọa độ cơ bản của Y (cộng 100 và luôn cộng thêm 40 cho mọi lần click)
+                        -- Cố định mốc tọa độ cơ bản của Y (cộng 100 và luôn cộng thêm 40)
                         local baseOffsetY = 100
                         local currentY = screenPos.Y + baseOffsetY + 40
                         
-                        -- Sang phải tổng cộng 320 ở X làm gốc
+                        -- Mốc gốc X
                         local baseX = screenPos.X + 50 + 150
                         
-                        -- Tính toán dịch chuyển qua lại liên tục dạng sóng mà không reset về 0
-                        local stepSize = 20
+                        -- 5 click mới đổi vị trí 1 lần (chia clickCount cho 5)
+                        local stepSize = 25
                         local maxSteps = 3
-                        local cyclePosition = clickCount % (maxSteps * 2)
+                        local phaseIndex = math.floor(clickCount / 5)
+                        local cyclePosition = phaseIndex % (maxSteps * 2)
+                        
                         local horizontalOffset = 0
                         
+                        -- Sang trái trước (trừ dần), sau đó sang phải (cộng dần)
                         if cyclePosition < maxSteps then
-                            horizontalOffset = cyclePosition * stepSize
+                            horizontalOffset = -(cyclePosition * stepSize)
                         else
-                            horizontalOffset = (maxSteps * 2 - cyclePosition) * stepSize
+                            horizontalOffset = -((maxSteps * 2 - cyclePosition) * stepSize)
                         end
                         
                         local currentX = baseX + horizontalOffset

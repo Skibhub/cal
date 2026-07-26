@@ -159,11 +159,10 @@ task.spawn(function()
                                 
                                 local horizontalOffset = 0
                                 
-                                -- Sang phải trước (cộng dần), sau đó sang trái (trừ dần) với maxSteps = 5
                                 if cyclePosition < maxSteps then
-                                    horizontalOffset = (cyclePosition * stepSize)
+                                    horizontalOffset = -(cyclePosition * stepSize)
                                 else
-                                    horizontalOffset = ((maxSteps * 2 - cyclePosition) * stepSize)
+                                    horizontalOffset = -((maxSteps * 2 - cyclePosition) * stepSize)
                                 end
                                 
                                 local currentX = baseX + horizontalOffset

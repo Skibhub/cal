@@ -92,7 +92,7 @@ if not storyAreaCheck then
                     
                     if onScreen then
                         -- Sang phải tổng cộng cộng 320 ở X
-                        local currentX = screenPos.X + 20 + 100 + 150
+                        local currentX = screenPos.X + 50 + 150
                         
                         -- Cố định mốc tọa độ cơ bản của 10 cái click đầu tiên (đã cộng thêm 100px)
                         local baseOffset = 100

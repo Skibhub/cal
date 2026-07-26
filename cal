@@ -106,7 +106,7 @@ if not storyAreaCheck then
                         
                         local horizontalOffset = 0
                         
-                        -- Sang trái trước (trừ dần), sau đó sang phải (cộng dần) với maxSteps = 5
+                        -- Sang trái trước (trừ dần), sau đó sang phải (cộng dần)
                         if cyclePosition < maxSteps then
                             horizontalOffset = -(cyclePosition * stepSize)
                         else

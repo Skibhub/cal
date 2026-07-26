@@ -7,58 +7,11 @@ local Camera = workspace.CurrentCamera
 local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
 local RootPart = Character:WaitForChild("HumanoidRootPart")
 
--- Tự động tối ưu đồ họa và xóa animation/hiệu ứng thừa của unit
-task.spawn(function()
-    pcall(function()
-        settings():GetService("RenderSettings").QualityLevel = Enum.QualityLevel.Level01
-        userSettings():GetService("UserGameSettings").SavedQualityLevel = Enum.SavedQualityLevel.Level1
-    end)
-    
-    pcall(function()
-        for _, v in ipairs(Lighting:GetChildren()) do
-            if v:IsA("PostEffect") or v:IsA("BlurEffect") or v:IsA("ColorCorrectionEffect") or v:IsA("SunRaysEffect") or v:IsA("BloomEffect") then
-                v.Enabled = false
-            end
-        end
-    end)
-
-    local function cleanModel(parent)
-        for _, obj in ipairs(parent:GetDescendants()) do
-            if obj:IsA("ParticleEmitter") or obj:IsA("Trail") or obj:IsA("Beam") or obj:IsA("Fire") or obj:IsA("Smoke") or obj:IsA("Sparkles") then
-                obj:Destroy()
-            elseif obj:IsA("AnimationController") or obj:IsA("Animator") then
-                obj:Destroy()
-            end
-        end
-    end
-
-    pcall(function()
-        for _, child in ipairs(workspace:GetDescendants()) do
-            if child:IsA("Model") and child ~= LocalPlayer.Character then
-                cleanModel(child)
-            end
-        end
-        workspace.DescendantAdded:Connect(function(child)
-            if child:IsA("ParticleEmitter") or child:IsA("Trail") or child:IsA("Beam") or child:IsA("Fire") or child:IsA("Smoke") or child:IsA("Sparkles") then
-                task.defer(function()
-                    if child and child.Parent then child:Destroy() end
-                end)
-            end
-        end)
-    end)
-end)
-
--- Vòng lặp liên tục kiểm tra, luôn bay tới chỗ Story và bấm E (luôn chạy cho đến khi quét thấy không có Story)
+-- Vòng lặp spam bay tới chỗ Story và bấm E liên tục cho đến khi tìm thấy và hoàn thành
 task.spawn(function()
     while true do
-        local interactZones = workspace:FindFirstChild("InteractZones")
+        local storyArea = workspace:FindFirstChild("InteractZones") and workspace.InteractZones:FindFirstChild("Story")
         
-        -- Nếu không tìm thấy thư mục InteractZones hoặc không tìm thấy Story, dừng hẳn vòng lặp tele để chuyển sang logic click chuột
-        if not interactZones or not interactZones:FindFirstChild("Story") then
-            break
-        end
-
-        local storyArea = interactZones:FindFirstChild("Story")
         if storyArea then
             local targetCFrame = storyArea:IsA("Model") and storyArea:GetPrimaryPartCFrame() or storyArea.CFrame
             
@@ -78,7 +31,7 @@ task.spawn(function()
                 tween.Completed:Wait()
                 task.wait(0.5) 
                 
-                -- Auto bấm E liên tục vài lần khi tới nơi
+                -- Auto bấm E liên tục vài lần khi vừa tới để chắc chắn nhận diện
                 for i = 1, 3 do
                     VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.E, false, game)
                     task.wait(0.1)
@@ -87,6 +40,7 @@ task.spawn(function()
                 end
                 
                 print("Đã đến khu vực Story và bấm phím E thành công!")
+                break
             end
         end
         task.wait(1)
@@ -101,86 +55,72 @@ task.spawn(function()
     end)
 end)
 
--- Phần chạy khi kiểm tra thực tế không thấy khu vực Story
-task.spawn(function()
-    while true do
-        local interactZones = workspace:FindFirstChild("InteractZones")
-        local storyAreaCheck = interactZones and interactZones:FindFirstChild("Story")
-        
-        if not storyAreaCheck then
-            print("Không tìm thấy khu vực Story trong InteractZones! Bắt đầu chạy logic click chuột tự động...")
+-- Phần còn lại chạy khi không tìm thấy (hoặc để dự phòng logic click chuột tự động)
+local storyAreaCheck = workspace:FindFirstChild("InteractZones") and workspace.InteractZones:FindFirstChild("Story")
+if not storyAreaCheck then
+    print("Không tìm thấy khu vực Story trong InteractZones! Bắt đầu chạy logic click chuột tự động...")
 
-            -- Vòng lặp bấm phím 1 (cứ 3 giây bấm 1 lần)
-            task.spawn(function()
-                while true do
-                    local zones = workspace:FindFirstChild("InteractZones")
-                    if zones and zones:FindFirstChild("Story") then break end
-                    pcall(function()
-                        VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.One, false, game)
-                        task.wait(0.1)
-                        VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.One, false, game)
-                    end)
-                    task.wait(3)
-                end
+    -- Vòng lặp bấm phím 1 (cứ 3 giây bấm 1 lần)
+    task.spawn(function()
+        while true do
+            pcall(function()
+                VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.One, false, game)
+                task.wait(0.1)
+                VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.One, false, game)
             end)
-
-            -- Vòng lặp click chuột
-            task.spawn(function()
-                task.wait(1)
-                
-                local clickCount = 0
-                
-                while true do
-                    local zones = workspace:FindFirstChild("InteractZones")
-                    if zones and zones:FindFirstChild("Story") then break end
-
-                    pcall(function()
-                        local currentCharacter = LocalPlayer.Character
-                        if currentCharacter and currentCharacter:FindFirstChild("HumanoidRootPart") then
-                            local currentRootPart = currentCharacter.HumanoidRootPart
-                            
-                            -- Lấy vị trí cao hơn nhân vật 1 stud
-                            local targetWorldPos = currentRootPart.Position + Vector3.new(0, 1, 0)
-                            
-                            -- Chuyển đổi tọa độ 3D sang 2D màn hình
-                            local screenPos, onScreen = Camera:WorldToScreenPoint(targetWorldPos)
-                            
-                            if onScreen then
-                                local baseOffsetY = 100
-                                local currentY = screenPos.Y + baseOffsetY + 40 + 15 + 15
-                                
-                                -- Mốc gốc X
-                                local baseX = screenPos.X + 50 + 150
-                                
-                                local stepSize = 25
-                                local maxSteps = 5
-                                local phaseIndex = math.floor(clickCount / 5)
-                                local cyclePosition = phaseIndex % (maxSteps * 2)
-                                
-                                local horizontalOffset = 0
-                                
-                                if cyclePosition < maxSteps then
-                                    horizontalOffset = -(cyclePosition * stepSize)
-                                else
-                                    horizontalOffset = -((maxSteps * 2 - cyclePosition) * stepSize)
-                                end
-                                
-                                local currentX = baseX + horizontalOffset
-                                
-                                VirtualInputManager:SendMouseButtonEvent(currentX, currentY, 0, true, game, 1)
-                                task.wait(0.05)
-                                VirtualInputManager:SendMouseButtonEvent(currentX, currentY, 0, false, game, 1)
-                                
-                                clickCount = clickCount + 1
-                            end
-                        end
-                    end)
-                    task.wait(1)
-                end
-            end)
-            
-            break
+            task.wait(3)
         end
+    end)
+
+    -- Vòng lặp click chuột: Chạy qua lại liên tục theo chiều ngang không reset về gốc
+    task.spawn(function()
         task.wait(1)
-    end
-end)
+        
+        local clickCount = 0
+        
+        while true do
+            pcall(function()
+                local currentCharacter = LocalPlayer.Character
+                if currentCharacter and currentCharacter:FindFirstChild("HumanoidRootPart") then
+                    local currentRootPart = currentCharacter.HumanoidRootPart
+                    
+                    -- Lấy vị trí cao hơn nhân vật 1 stud
+                    local targetWorldPos = currentRootPart.Position + Vector3.new(0, 1, 0)
+                    
+                    -- Chuyển đổi tọa độ 3D sang 2D màn hình
+                    local screenPos, onScreen = Camera:WorldToScreenPoint(targetWorldPos)
+                    
+                    if onScreen then
+                        -- Cố định mốc tọa độ cơ bản của Y (cộng 100 và luôn cộng thêm 40 cho mọi lần click)
+                        local baseOffsetY = 100
+                        local currentY = screenPos.Y + baseOffsetY + 40
+                        
+                        -- Sang phải tổng cộng 320 ở X làm gốc
+                        local baseX = screenPos.X + 50 + 150
+                        
+                        -- Tính toán dịch chuyển qua lại liên tục dạng sóng mà không reset về 0
+                        local stepSize = 20
+                        local maxSteps = 3
+                        local cyclePosition = clickCount % (maxSteps * 2)
+                        local horizontalOffset = 0
+                        
+                        if cyclePosition < maxSteps then
+                            horizontalOffset = cyclePosition * stepSize
+                        else
+                            horizontalOffset = (maxSteps * 2 - cyclePosition) * stepSize
+                        end
+                        
+                        local currentX = baseX + horizontalOffset
+                        
+                        VirtualInputManager:SendMouseButtonEvent(currentX, currentY, 0, true, game, 1)
+                        task.wait(0.05)
+                        VirtualInputManager:SendMouseButtonEvent(currentX, currentY, 0, false, game, 1)
+                        
+                        clickCount = clickCount + 1
+                    end
+                end
+            end)
+            task.wait(1)
+        end
+    end)
+end
